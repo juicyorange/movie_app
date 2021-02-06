@@ -1,56 +1,94 @@
-import React from 'react';
-import PropTypes from "prop-types";
+import React, {useState, useEffect} from 'react';
+import axios from 'axios';
+import Movie from "./Movie";
+import styled, { createGlobalStyle } from 'styled-components';
 
-// 컴포넌트
-function Food({ name, color, rating }) {
-  return (
-    <div>
-      <h3>I love { name }</h3>
-      <h4>its color is {color}</h4>
-      <p>its rating is {rating}</p>
-    </div>
-  );
-}
-
-// propTypes
-// prop 으로 준 값을 제대로 사용하고 있는지 확인할 때 유용하게 사용한다.
-
-Food.propTypes = {
-  name: PropTypes.string.isRequired,
-  color: PropTypes.string.isRequired,
-  rating: PropTypes.number.isRequired,
-}
-
-// 컴포넌트에게 줄 정보
-// 나중에 API 나 db 에서 가져온 정보로 대체한다. 
-const foodILike = [
-  {
-    id : 1,
-    name : "kimchi",
-    color : "red",
-    rating : 1
-  },
-  {
-    id : 2,
-    name : "chicken",
-    color : "yello",
-    rating: 99
+const GlobalStyle = createGlobalStyle`
+  body {
+    margin : 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+    background-color : #eff3f7;
+    height : 100%;
   }
-]
+`;
 
+const Container = styled.section`
+  height : 100%;
+  display: flex;
+  justify-content: center;
+`;
+
+const Loader = styled.div`
+  width : 100%;
+  height : 100%;
+  display : flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: 300;  
+`;
+
+const Movies = styled.div`
+  display : flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  padding : 50px;
+  padding-top : 70px;
+  width: 80%;
+`;
+
+ 
 function App() {
+  const [isLoading, setisLoading] = useState(true);
+  const [movies, setMoives] = useState([]);
+
+  useEffect(() => {
+    // Update the document title using the browser API
+    getMovies();
+  },[]);
+
+  /*
+  API를 요청해 데이터를 가져오는데 걸리는 시간이 있기 때문에 비동기 함수로 만든다. 
+  비동기 함수를 만들기위해서 함수를 async로 선언하고 함수안의 동작에 await를 부여했다.  
+  yts 사이트에서 요청하는 api로 주소가 매번 변경되므로 오류가 발생하면 주소를 찾아서 다시 입력해주자.
+  axios 동작이 끝나기를 기다려야하기 때문에 앞에 await를 붙여준다. 
+  */
+  const getMovies = async () => {
+    const movies = await axios.get("https://yts.mx/api/v2/list_movies.json?sort_by=rating");
+    setMoives(movies.data.data.movies);
+    setisLoading(false);
+  }
+ 
   return (
-    <div>
-      {foodILike.map(dish =>(
-        <Food 
-          key = {dish.id} 
-          name ={dish.name} 
-          color = {dish.color} 
-          rating ={dish.rating}/>
-      ))}
-      {console.log(foodILike)}
-    </div>
+    <>
+    <GlobalStyle />
+    <Container>
+      {isLoading ? (
+        <Loader>
+          <span className = "loader_text">Loading...</span>
+        </Loader>
+      ) : (
+        <Movies>
+          {movies.map(movie => (
+            <Movie 
+              key={movie.id}
+              id={movie.id}
+              year={movie.year} 
+              title={movie.title} 
+              summary={movie.summary} 
+              poster={movie.medium_cover_image}
+              genres={movie.genres}
+            />
+          )
+        )}
+        </Movies>
+      )}
+      </Container>
+      </>
   );
 }
  
 export default App;
+
