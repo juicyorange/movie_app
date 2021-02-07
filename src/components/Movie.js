@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import { Link } from 'react-router-dom';
 
 const MovieCommon = styled.div`
     width: 45%;
@@ -61,17 +62,28 @@ const MovieGenres = styled.ul`
 
 function Movie({ id, year, title, summary, poster, genres}) {
     return (
-        <MovieCommon>
-            <img src={poster} alt={title} title={title} />
-            <MovieData>
-                <MovieTitle>{title}</MovieTitle>
-                <MovieYear>{year}</MovieYear>
-                <MovieGenres>{genres.map((genre, idx) => (
-                    <li key={idx}>{genre}</li>))}
-                </MovieGenres>
-                <MovieSummary>{summary.slice(0,140)}...</MovieSummary>
-            </MovieData>
-        </MovieCommon>
+        <Link to={{
+            pathname: `/movie/${id}`,
+            state:{
+                year:year,
+                poster:poster,
+                title:title,
+                genres:genres, 
+                summary:summary
+            }
+        }}>
+            <MovieCommon>
+                <img src={poster} alt={title} title={title} />
+                <MovieData>
+                    <MovieTitle>{title}</MovieTitle>
+                    <MovieYear>{year}</MovieYear>
+                    <MovieGenres>{genres.map((genre, idx) => (
+                        <li key={idx}>{genre}</li>))}
+                    </MovieGenres>
+                    <MovieSummary>{summary.slice(0,140)}...</MovieSummary>
+                </MovieData>
+            </MovieCommon>
+        </Link>
     );
 }
 
